@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bangalore House Price Predictor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+      .card {
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border: none;
+      }
+      .form-group {
+        margin-bottom: 20px;
+      }
+      .btn-primary {
+        margin-top: 20px;
+        border-radius: 25px;
+      }
+      .form-control {
+        border-radius: 10px;
+      }
+      .container {
+        margin-top: 50px;
+      }
+      #prediction {
+        margin-top: 20px;
+        font-size: 24px;
+        font-weight: bold;
+        color: #007bff;
+      }
+    </style>
+  </head>
+  <body class="bg-dark">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="card col-md-12">
+          <div class="card-header" style="text-align: center;">
+            <h1>Bangalore House Price Predictor</h1>
+          </div>
+          <div class="card-body">
+
+            <form id="prediction-form" accept-charset="utf-8" onsubmit="send_data(event)">
+
+              <div class="row">
+                <div class="col-md-6 form-group" style="text-align: center">
+                  <label><b>Select the Location:</b></label>
+                  <select class="select-picker form-control" id="location" name="location" required="1">
+                    {% for location in locations %}
+                      <option value="{{ location }}">{{ location }}</option>
+                    {% endfor %}  
+                  </select>
+                </div>
+                <div class="col-md-6 form-group" style="text-align: center">
+                  <label><b>Enter BHK:</b></label>
+                  <select class="form-control" id="bhk" name="bhk" required="1">
+                    <option value="1">1 BHK</option>
+                    <option value="2">2 BHK</option>
+                    <option value="3">3 BHK</option>
+                    <option value="4">4 BHK</option>
+                    <option value="5">5 BHK</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 form-group" style="text-align: center">
+                  <label><b>Enter Number of Bathrooms:</b></label>
+                  <select class="form-control" id="bath" name="bath" required="1">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                  </select>
+                </div>
+                <div class="col-md-6 form-group" style="text-align: center">
+                  <label><b>Enter Square Feet:</b></label>
+                  <input type="text" class="form-control" id="total_sqft" name="total_sqft" placeholder="Enter Square Feet">
+                  <small id="sqftError" class="form-text text-danger" style="display:none;">Please enter a valid number for square feet.</small>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary form-control">Predict Price</button>
+
+            </form>
+            <div id="prediction" style="text-align: center;"></div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      function validateForm() {
+        var sqft = document.getElementById("total_sqft").value;
+        var sqftError = document.getElementById("sqftError");
+
+        // Check if the input is empty or not a number
+        if (sqft === "" || isNaN(sqft) || sqft <= 0) {
+          sqftError.style.display = "block"; // Show error message
+          return false; // Prevent form submission
+        } else {
+          sqftError.style.display = "none"; // Hide error message
+        }
+
+        return true; // Allow form submission
+      }
+
+      function send_data(event) {
+        event.preventDefault(); // Don't submit the form normally
+
+        if (!validateForm()) {
+          return; // If form is invalid, do not proceed
+        }
+
+        var fd = new FormData(document.getElementById('prediction-form'));
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/predict', true);
+        document.getElementById("prediction").innerHTML = "Predicting price...";
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+                document.getElementById('prediction').innerHTML = "Estimated Price: " + xhr.responseText;
+            }
+        };
+
+        xhr.send(fd);
+      }
+    </script>
+  </body>
+</html>
